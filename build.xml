@@ -27,7 +27,7 @@ xmlns:maven="antlib:org.apache.maven.artifact.ant">
 
     <property environment="env"/>
     
-    <property name="version" value="3.4.5" />
+    <property name="version" value="3.4.6-SNAPSHOT" />
     <property name="final.name" value="${name}-${version}"/>
     <property name="revision.dir" value="${basedir}/.revision" />
     <property name="revision.properties" value="revision.properties" />
@@ -645,7 +645,7 @@ xmlns:maven="antlib:org.apache.maven.artifact.ant">
     <!--                                                                    -->
     <!-- ================================================================== -->
     <target name="package" 
-            depends="jar,bin-jar,src-jar,javadoc-jar,test-jar,api-report,create-cppunit-configure,compile-test"
+            depends="jar,bin-jar,src-jar,javadoc-jar,test-jar,api-report,compile-test"
             description="Build distribution">
       <mkdir dir="${dist.dir}"/>
       <mkdir dir="${dist.dir}/lib"/>
@@ -1655,9 +1655,7 @@ xmlns:maven="antlib:org.apache.maven.artifact.ant">
      </target>
      
      <target name="write-null">
-       <exec executable="touch">
-         <arg value="${jdiff.home}/Null.java"/>
-       </exec>
+       <touch file="${jdiff.home}/Null.java"/>
      </target> 
 
      <target name="api-report" depends="api-xml">

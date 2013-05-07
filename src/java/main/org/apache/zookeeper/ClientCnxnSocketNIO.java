@@ -134,6 +134,8 @@ public class ClientCnxnSocketNIO extends ClientCnxnSocket {
                     // to attempt SASL authentication), or in either doIO() or
                     // in doTransport() if not.
                     disableWrite();
+                } else if (!initialized) {
+                    disableWrite();
                 } else {
                     // Just in case
                     enableWrite();
