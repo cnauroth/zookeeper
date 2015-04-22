@@ -67,11 +67,11 @@ public class JUnit4ZKTestRunner extends BlockJUnit4ClassRunner {
                 // Check the annotation and log an appropriate message.
                 Test annotation = this.method.getAnnotation(Test.class);
                 if (annotation != null && annotation.expected() != null &&
-                        !annotation.expected().isAssignableFrom(t.getClass())) {
-                    LOG.info("TEST METHOD FAILED " + name, t);
-                } else {
+                        annotation.expected().isAssignableFrom(t.getClass())) {
                     LOG.info("TEST METHOD " + name +
                         " THREW EXPECTED EXCEPTION " + annotation.expected());
+                } else {
+                    LOG.info("TEST METHOD FAILED " + name, t);
                 }
                 throw t;
             }
