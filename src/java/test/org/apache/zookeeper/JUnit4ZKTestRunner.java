@@ -62,10 +62,16 @@ public class JUnit4ZKTestRunner extends BlockJUnit4ClassRunner {
                 }
                 LOG.info("Number of threads {}", tg.activeCount());
             } catch (Throwable t) {
+                // The test method threw an exception, but it might be an
+                // expected exception as defined in the @Test annotation.
+                // Check the annotation and log an appropriate message.
                 Test annotation = this.method.getAnnotation(Test.class);
                 if (annotation != null && annotation.expected() != null &&
                         !annotation.expected().isAssignableFrom(t.getClass())) {
                     LOG.info("TEST METHOD FAILED " + name, t);
+                } else {
+                    LOG.info("TEST METHOD " + name +
+                        " THREW EXPECTED EXCEPTION " + annotation.expected());
                 }
                 throw t;
             }
