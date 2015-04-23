@@ -50,7 +50,7 @@ public class JUnit4ZKTestRunner extends BlockJUnit4ClassRunner {
 
         @Override
         public void evaluate() throws Throwable {
-            LOG.info("RUNNING TEST METHOD " + name);
+            LOG.info("RUNNING TEST METHOD {}", name);
             try {
                 super.evaluate();
                 Runtime rt = Runtime.getRuntime();
@@ -68,14 +68,14 @@ public class JUnit4ZKTestRunner extends BlockJUnit4ClassRunner {
                 Test annotation = this.method.getAnnotation(Test.class);
                 if (annotation != null && annotation.expected() != null &&
                         annotation.expected().isAssignableFrom(t.getClass())) {
-                    LOG.info("TEST METHOD " + name +
-                        " THREW EXPECTED EXCEPTION " + annotation.expected());
+                    LOG.info("TEST METHOD {} THREW EXPECTED EXCEPTION {}", name,
+                        annotation.expected());
                 } else {
                     LOG.info("TEST METHOD FAILED " + name, t);
                 }
                 throw t;
             }
-            LOG.info("FINISHED TEST METHOD " + name);
+            LOG.info("FINISHED TEST METHOD {}", name);
         }
     }
 
