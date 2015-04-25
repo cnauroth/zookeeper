@@ -1375,6 +1375,18 @@ public class DataTree {
         }    
     }    
 
+    /**
+     * Sets a WatchManagerListener to receive notification of triggers on both
+     * data watchers and child watchers.
+     *
+     * @param watchManagerListener the listener to set
+     */
+    public void setWatchManagerListener(
+            WatchManagerListener watchManagerListener) {
+        this.dataWatches.setWatchManagerListener(watchManagerListener);
+        this.childWatches.setWatchManagerListener(watchManagerListener);
+    }
+
      /**
       * This method sets the Cversion and Pzxid for the specified node to the
       * values passed as arguments. The values are modified only if newCversion

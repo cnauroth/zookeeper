@@ -46,6 +46,9 @@ class WatchManager {
     private final HashMap<Watcher, HashSet<String>> watch2Paths =
         new HashMap<Watcher, HashSet<String>>();
 
+    private WatchManagerListener watchManagerListener =
+        WatchManagerListener.NO_OP;
+
     synchronized int size(){
         int result = 0;
         for(Set<Watcher> watches : watchTable.values()) {
@@ -90,6 +93,15 @@ class WatchManager {
         }
     }
 
+    /**
+     * Sets a WatchManagerListener to receive notification of triggers.
+     *
+     * @param watchManagerListener the listener to set
+     */
+    void setWatchManagerListener(WatchManagerListener watchManagerListener) {
+        this.watchManagerListener = watchManagerListener;
+    }
+
     Set<Watcher> triggerWatch(String path, EventType type) {
         return triggerWatch(path, type, null);
     }
@@ -120,6 +132,9 @@ class WatchManager {
                 continue;
             }
             w.process(e);
+            if (this.watchManagerListener != null) {
+                this.watchManagerListener.watchTriggered(w);
+            }
         }
         return watchers;
     }

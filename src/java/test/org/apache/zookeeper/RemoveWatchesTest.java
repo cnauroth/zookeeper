@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,6 +35,7 @@ import org.apache.zookeeper.KeeperException.NoWatcherException;
 import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.Watcher.WatcherType;
 import org.apache.zookeeper.ZooDefs.Ids;
+import org.apache.zookeeper.server.WatchManagerListener;
 import org.apache.zookeeper.test.ClientBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -52,16 +54,24 @@ public class RemoveWatchesTest extends ClientBase {
             .getLogger(RemoveWatchesTest.class);
     private ZooKeeper zk1 = null;
     private ZooKeeper zk2 = null;
+    private MyWatchManagerListener watchManagerListener = null;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
         zk1 = createClient();
         zk2 = createClient();
+        this.watchManagerListener = new MyWatchManagerListener();
+        getServer(serverFactory).getZKDatabase().getDataTree()
+                .setWatchManagerListener(this.watchManagerListener);
     }
 
     @Override
     public void tearDown() throws Exception {
+        if (serverFactory != null) {
+            getServer(serverFactory).getZKDatabase().getDataTree()
+                    .setWatchManagerListener(WatchManagerListener.NO_OP);
+        }
         if (zk1 != null)
             zk1.close();
         if (zk2 != null)
@@ -936,8 +946,8 @@ public class RemoveWatchesTest extends ClientBase {
 
         zk1.setData("/node1", "test".getBytes(), -1);
         LOG.info("Waiting for data watchers notification after watch removal");
-        Assert.assertFalse("Received data watch notification!",
-                dWatchCount.await(CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS));
+        Assert.assertTrue("Child watchers triggered after removal!",
+                this.watchManagerListener.triggeredWatchers.isEmpty());
         Assert.assertEquals("Received watch notification after removal!", 2,
                 dWatchCount.getCount());
     }
@@ -998,8 +1008,8 @@ public class RemoveWatchesTest extends ClientBase {
         zk1.create("/node1/node2", null, Ids.OPEN_ACL_UNSAFE,
                 CreateMode.PERSISTENT);
         LOG.info("Waiting for child watchers to be notified");
-        Assert.assertFalse("Didn't get child watch notification!",
-                cWatchCount.await(CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS));
+        Assert.assertTrue("Child watchers triggered after removal!",
+                this.watchManagerListener.triggeredWatchers.isEmpty());
         Assert.assertEquals("Received watch notification after removal!", 2,
                 cWatchCount.getCount());
     }
@@ -1076,8 +1086,8 @@ public class RemoveWatchesTest extends ClientBase {
         zk1.setData("/node1", "test".getBytes(), -1);
 
         LOG.info("Waiting for child/data watchers notification after watch removal");
-        Assert.assertFalse("Received watch notification after removal!",
-                watchCount.await(CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS));
+        Assert.assertTrue("Child watchers triggered after removal!",
+                this.watchManagerListener.triggeredWatchers.isEmpty());
         Assert.assertEquals("Received watch notification after removal!", 2,
                 watchCount.getCount());
     }
@@ -1186,6 +1196,19 @@ public class RemoveWatchesTest extends ClientBase {
                 return false;
             }
             return path.equals(eventPath) && rc == eventRc;
+        }
+    }
+
+    /**
+     * A WatchManagerListener that captures each triggered Watcher in a set for
+     * use in assertions.
+     */
+    private static class MyWatchManagerListener implements WatchManagerListener {
+        final Set<Watcher> triggeredWatchers = new HashSet<Watcher>();
+
+        @Override
+        public void watchTriggered(Watcher watcher) {
+            this.triggeredWatchers.add(watcher);
         }
     }
 }
