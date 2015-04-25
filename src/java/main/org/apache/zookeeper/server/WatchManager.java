@@ -132,9 +132,7 @@ class WatchManager {
                 continue;
             }
             w.process(e);
-            if (this.watchManagerListener != null) {
-                this.watchManagerListener.watchTriggered(w);
-            }
+            this.watchManagerListener.watchTriggered(w);
         }
         return watchers;
     }
