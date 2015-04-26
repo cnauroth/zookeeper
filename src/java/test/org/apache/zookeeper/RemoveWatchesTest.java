@@ -953,7 +953,7 @@ public class RemoveWatchesTest extends ClientBase
         zk1.setData("/node1", "test".getBytes(), -1);
         LOG.info("Waiting for data watchers notification after watch removal");
         Assert.assertTrue("Child watchers triggered after removal!",
-                this.watchManagerListener.triggeredWatchers.isEmpty());
+                this.triggeredWatchers.isEmpty());
         Assert.assertEquals("Received watch notification after removal!", 2,
                 dWatchCount.getCount());
     }
@@ -1015,7 +1015,7 @@ public class RemoveWatchesTest extends ClientBase
                 CreateMode.PERSISTENT);
         LOG.info("Waiting for child watchers to be notified");
         Assert.assertTrue("Child watchers triggered after removal!",
-                this.watchManagerListener.triggeredWatchers.isEmpty());
+                this.triggeredWatchers.isEmpty());
         Assert.assertEquals("Received watch notification after removal!", 2,
                 cWatchCount.getCount());
     }
@@ -1093,7 +1093,7 @@ public class RemoveWatchesTest extends ClientBase
 
         LOG.info("Waiting for child/data watchers notification after watch removal");
         Assert.assertTrue("Child watchers triggered after removal!",
-                this.watchManagerListener.triggeredWatchers.isEmpty());
+                this.triggeredWatchers.isEmpty());
         Assert.assertEquals("Received watch notification after removal!", 2,
                 watchCount.getCount());
     }
