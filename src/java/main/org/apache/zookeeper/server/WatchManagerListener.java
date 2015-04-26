@@ -34,7 +34,7 @@ public interface WatchManagerListener {
     void watchTriggered(Watcher watcher);
 
     /**
-     * A default implementation of WatchManagerListener that does thing.
+     * A default implementation of WatchManagerListener that does nothing.
      */
     public static final WatchManagerListener NO_OP = new WatchManagerListener() {
 

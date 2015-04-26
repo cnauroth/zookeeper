@@ -49,21 +49,22 @@ import org.slf4j.LoggerFactory;
  * Verifies removing watches using ZooKeeper client apis
  */
 @RunWith(Parameterized.class)
-public class RemoveWatchesTest extends ClientBase {
+public class RemoveWatchesTest extends ClientBase
+        implements WatchManagerListener {
     private static final Logger LOG = LoggerFactory
             .getLogger(RemoveWatchesTest.class);
     private ZooKeeper zk1 = null;
     private ZooKeeper zk2 = null;
-    private MyWatchManagerListener watchManagerListener = null;
+    private Set<Watcher> triggeredWatchers = null;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
         zk1 = createClient();
         zk2 = createClient();
-        this.watchManagerListener = new MyWatchManagerListener();
+        triggeredWatchers = new HashSet<>();
         getServer(serverFactory).getZKDatabase().getDataTree()
-                .setWatchManagerListener(this.watchManagerListener);
+                .setWatchManagerListener(this);
     }
 
     @Override
@@ -77,6 +78,11 @@ public class RemoveWatchesTest extends ClientBase {
         if (zk2 != null)
             zk2.close();
         super.tearDown();
+    }
+
+    @Override
+    public void watchTriggered(Watcher watcher) {
+        this.triggeredWatchers.add(watcher);
     }
 
     private final boolean useAsync;
@@ -1196,19 +1202,6 @@ public class RemoveWatchesTest extends ClientBase {
                 return false;
             }
             return path.equals(eventPath) && rc == eventRc;
-        }
-    }
-
-    /**
-     * A WatchManagerListener that captures each triggered Watcher in a set for
-     * use in assertions.
-     */
-    private static class MyWatchManagerListener implements WatchManagerListener {
-        final Set<Watcher> triggeredWatchers = new HashSet<Watcher>();
-
-        @Override
-        public void watchTriggered(Watcher watcher) {
-            this.triggeredWatchers.add(watcher);
         }
     }
 }
