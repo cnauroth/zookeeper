@@ -1067,19 +1067,14 @@ public class RemoveWatchesTest extends ClientBase {
         Assert.assertNotNull("Didn't set data watches",
                 zk2.exists("/node1", w2));
 
-        Set<Long> sessions = getServer(serverFactory).getZKDatabase()
-                .getDataTree().getWatchesByPath().getSessions("/node1");
-        Assert.assertNotNull("Didn't find the session", sessions);
-        Assert.assertEquals("Found more than one session", 1, sessions.size());
-        final long sessionId = sessions.iterator().next();
-        Assert.assertEquals("Session mismatches", zk2.getSessionId(), sessionId);
+        Assert.assertTrue("Session is not a watcher",
+                isClientSessionWatcher(zk2, "/node1", WatcherType.Data));
 
         removeAllWatches(zk2, "/node1", WatcherType.Any, false, Code.OK);
         Assert.assertTrue("Didn't remove data watcher",
                 rmWatchCount.await(CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS));
-        Assert.assertFalse("Child and/or data watchers exist after removal!",
-                getServer(serverFactory).getZKDatabase().getDataTree()
-                .getWatchesByPath().hasSessions("/node1"));
+        Assert.assertFalse("Session is still a watcher after removal",
+                isClientSessionWatcher(zk2, "/node1", WatcherType.Data));
         Assert.assertEquals("Received watch notification after removal!", 2,
                 watchCount.getCount());
     }
