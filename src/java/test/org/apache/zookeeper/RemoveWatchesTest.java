@@ -210,14 +210,12 @@ public class RemoveWatchesTest extends ClientBase {
         LOG.info("Adding child watcher {} on path {}", new Object[] { w2,
                 "/node1" });
         zk2.getChildren("/node1", w2);
-        Assert.assertTrue("Server session is not a watcher",
-                isServerSessionWatcher(zk2.getSessionId(), "/node1", 
-                WatcherType.Children));
         removeWatches(zk2, "/node1", w2, WatcherType.Children, false, Code.OK);
         Assert.assertTrue("Didn't remove child watcher", w2.matches());
-        Assert.assertTrue("Server session is not a watcher",
-                isServerSessionWatcher(zk2.getSessionId(), "/node1",
-                WatcherType.Children));
+        Assert.assertEquals("Didn't find child watcher", 1, zk2
+                .getChildWatches().size());
+        removeWatches(zk2, "/node1", w1, WatcherType.Any, false, Code.OK);
+        Assert.assertTrue("Didn't remove child watcher", w1.matches());
         // create child to see NodeChildren notification
         zk1.create("/node1/node2", null, Ids.OPEN_ACL_UNSAFE,
                 CreateMode.PERSISTENT);
@@ -234,9 +232,6 @@ public class RemoveWatchesTest extends ClientBase {
         List<EventType> events = w2.getEventsAfterWatchRemoval();
         Assert.assertEquals("Shouldn't get NodeChildrenChanged event", 0,
                 events.size());
-        Assert.assertFalse("Server session is still a watcher after removal",
-                isServerSessionWatcher(zk2.getSessionId(), "/node1",
-                WatcherType.Children));
     }
 
     /**
