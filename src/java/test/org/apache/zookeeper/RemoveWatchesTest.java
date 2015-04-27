@@ -30,12 +30,13 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.zookeeper.KeeperException.Code;
 import org.apache.zookeeper.KeeperException.NoWatcherException;
 import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.Watcher.WatcherType;
 import org.apache.zookeeper.ZooDefs.Ids;
-import org.apache.zookeeper.server.WatchManagerListener;
+import org.apache.zookeeper.server.ServerCnxn;
 import org.apache.zookeeper.test.ClientBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -49,40 +50,26 @@ import org.slf4j.LoggerFactory;
  * Verifies removing watches using ZooKeeper client apis
  */
 @RunWith(Parameterized.class)
-public class RemoveWatchesTest extends ClientBase
-        implements WatchManagerListener {
+public class RemoveWatchesTest extends ClientBase {
     private static final Logger LOG = LoggerFactory
             .getLogger(RemoveWatchesTest.class);
     private ZooKeeper zk1 = null;
     private ZooKeeper zk2 = null;
-    private Set<Watcher> triggeredWatchers = null;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
         zk1 = createClient();
         zk2 = createClient();
-        triggeredWatchers = new HashSet<>();
-        getServer(serverFactory).getZKDatabase().getDataTree()
-                .setWatchManagerListener(this);
     }
 
     @Override
     public void tearDown() throws Exception {
-        if (serverFactory != null) {
-            getServer(serverFactory).getZKDatabase().getDataTree()
-                    .setWatchManagerListener(WatchManagerListener.NO_OP);
-        }
         if (zk1 != null)
             zk1.close();
         if (zk2 != null)
             zk2.close();
         super.tearDown();
-    }
-
-    @Override
-    public void watchTriggered(Watcher watcher) {
-        this.triggeredWatchers.add(watcher);
     }
 
     private final boolean useAsync;
@@ -946,16 +933,15 @@ public class RemoveWatchesTest extends ClientBase
         Assert.assertNotNull("Didn't set data watches",
                 zk2.exists("/node1", w2));
 
+        Assert.assertTrue("Session is not a watcher",
+                isClientSessionWatcher(zk2, "/node1", WatcherType.Data));
+
         removeAllWatches(zk2, "/node1", WatcherType.Data, false, Code.OK);
         Assert.assertTrue("Didn't remove data watcher",
                 rmWatchCount.await(CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS));
 
-        zk1.setData("/node1", "test".getBytes(), -1);
-        LOG.info("Waiting for data watchers notification after watch removal");
-        Assert.assertTrue("Child watchers triggered after removal!",
-                this.triggeredWatchers.isEmpty());
-        Assert.assertEquals("Received watch notification after removal!", 2,
-                dWatchCount.getCount());
+        Assert.assertFalse("Session is still a watcher after removal",
+                isClientSessionWatcher(zk2, "/node1", WatcherType.Data));
     }
 
     /**
@@ -1007,17 +993,15 @@ public class RemoveWatchesTest extends ClientBase
         Assert.assertEquals("Didn't set child watches", 0,
                 zk2.getChildren("/node1", w2).size());
 
+        Assert.assertTrue("Session is not a watcher",
+                isClientSessionWatcher(zk2, "/node1", WatcherType.Children));
+
         removeAllWatches(zk2, "/node1", WatcherType.Children, false, Code.OK);
         Assert.assertTrue("Didn't remove child watcher",
                 rmWatchCount.await(CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS));
 
-        zk1.create("/node1/node2", null, Ids.OPEN_ACL_UNSAFE,
-                CreateMode.PERSISTENT);
-        LOG.info("Waiting for child watchers to be notified");
-        Assert.assertTrue("Child watchers triggered after removal!",
-                this.triggeredWatchers.isEmpty());
-        Assert.assertEquals("Received watch notification after removal!", 2,
-                cWatchCount.getCount());
+        Assert.assertFalse("Session is still a watcher after removal",
+                isClientSessionWatcher(zk2, "/node1", WatcherType.Children));
     }
 
     /**
@@ -1083,17 +1067,19 @@ public class RemoveWatchesTest extends ClientBase
         Assert.assertNotNull("Didn't set data watches",
                 zk2.exists("/node1", w2));
 
+        Set<Long> sessions = getServer(serverFactory).getZKDatabase()
+                .getDataTree().getWatchesByPath().getSessions("/node1");
+        Assert.assertNotNull("Didn't find the session", sessions);
+        Assert.assertEquals("Found more than one session", 1, sessions.size());
+        final long sessionId = sessions.iterator().next();
+        Assert.assertEquals("Session mismatches", zk2.getSessionId(), sessionId);
+
         removeAllWatches(zk2, "/node1", WatcherType.Any, false, Code.OK);
         Assert.assertTrue("Didn't remove data watcher",
                 rmWatchCount.await(CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS));
-
-        zk1.create("/node1/node2", null, Ids.OPEN_ACL_UNSAFE,
-                CreateMode.PERSISTENT);
-        zk1.setData("/node1", "test".getBytes(), -1);
-
-        LOG.info("Waiting for child/data watchers notification after watch removal");
-        Assert.assertTrue("Child watchers triggered after removal!",
-                this.triggeredWatchers.isEmpty());
+        Assert.assertFalse("Child and/or data watchers exist after removal!",
+                getServer(serverFactory).getZKDatabase().getDataTree()
+                .getWatchesByPath().hasSessions("/node1"));
         Assert.assertEquals("Received watch notification after removal!", 2,
                 watchCount.getCount());
     }
@@ -1203,5 +1189,26 @@ public class RemoveWatchesTest extends ClientBase
             }
             return path.equals(eventPath) && rc == eventRc;
         }
+    }
+
+    /**
+     * Checks if a client's session is registered with the server as a watcher.
+     *
+     * @param zk the client session to check
+     * @param path the path to check for watchers
+     * @param type the type of watcher
+     * @return true if the client session is a watcher on path for the type
+     */
+    private boolean isClientSessionWatcher(ZooKeeper zk, String path,
+            WatcherType type) {
+        Set<ServerCnxn> cnxns = new HashSet<>();
+        CollectionUtils.addAll(cnxns, serverFactory.getConnections().iterator());
+        for (ServerCnxn cnxn : cnxns) {
+            if (cnxn.getSessionId() == zk.getSessionId()) {
+                return getServer(serverFactory).getZKDatabase().getDataTree()
+                        .containsWatcher(path, type, cnxn);
+            }
+        }
+        return false;
     }
 }
