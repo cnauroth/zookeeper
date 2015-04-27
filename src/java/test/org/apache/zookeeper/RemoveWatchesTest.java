@@ -215,7 +215,6 @@ public class RemoveWatchesTest extends ClientBase {
                 WatcherType.Children));
 
         removeWatches(zk2, "/node1", w2, WatcherType.Children, false, Code.OK);
-
         Assert.assertTrue("Didn't remove child watcher", w2.matches());
         Assert.assertTrue("Server session is not a watcher",
                 isServerSessionWatcher(zk2.getSessionId(), "/node1",
