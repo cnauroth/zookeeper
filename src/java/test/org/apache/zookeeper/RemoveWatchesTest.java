@@ -213,13 +213,11 @@ public class RemoveWatchesTest extends ClientBase {
         Assert.assertTrue("Server session is not a watcher",
                 isServerSessionWatcher(zk2.getSessionId(), "/node1", 
                 WatcherType.Children));
-
         removeWatches(zk2, "/node1", w2, WatcherType.Children, false, Code.OK);
         Assert.assertTrue("Didn't remove child watcher", w2.matches());
         Assert.assertTrue("Server session is not a watcher",
                 isServerSessionWatcher(zk2.getSessionId(), "/node1",
                 WatcherType.Children));
-
         // create child to see NodeChildren notification
         zk1.create("/node1/node2", null, Ids.OPEN_ACL_UNSAFE,
                 CreateMode.PERSISTENT);
@@ -236,7 +234,6 @@ public class RemoveWatchesTest extends ClientBase {
         List<EventType> events = w2.getEventsAfterWatchRemoval();
         Assert.assertEquals("Shouldn't get NodeChildrenChanged event", 0,
                 events.size());
-
         Assert.assertFalse("Server session is still a watcher after removal",
                 isServerSessionWatcher(zk2.getSessionId(), "/node1",
                 WatcherType.Children));
@@ -463,6 +460,8 @@ public class RemoveWatchesTest extends ClientBase {
         Assert.assertTrue("Didn't remove data watcher", w1.matches());
         Assert.assertEquals("Didn't find child watcher", 1, zk2
                 .getChildWatches().size());
+        Assert.assertEquals("Didn't find child watcher", 1, zk2
+                .getDataWatches().size());
         removeWatches(zk2, "/node1", w2, WatcherType.Any, false, Code.OK);
         Assert.assertTrue("Didn't remove child watcher", w2.matches());
     }
@@ -958,7 +957,6 @@ public class RemoveWatchesTest extends ClientBase {
         Assert.assertTrue("Server session is not a watcher",
                 isServerSessionWatcher(zk2.getSessionId(), "/node1",
                 WatcherType.Data));
-
         removeAllWatches(zk2, "/node1", WatcherType.Data, false, Code.OK);
         Assert.assertTrue("Didn't remove data watcher",
                 rmWatchCount.await(CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS));
@@ -1020,7 +1018,6 @@ public class RemoveWatchesTest extends ClientBase {
         Assert.assertTrue("Server session is not a watcher",
                 isServerSessionWatcher(zk2.getSessionId(), "/node1",
                 WatcherType.Children));
-
         removeAllWatches(zk2, "/node1", WatcherType.Children, false, Code.OK);
         Assert.assertTrue("Didn't remove child watcher",
                 rmWatchCount.await(CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS));
@@ -1096,7 +1093,6 @@ public class RemoveWatchesTest extends ClientBase {
         Assert.assertTrue("Server session is not a watcher",
                 isServerSessionWatcher(zk2.getSessionId(), "/node1",
                 WatcherType.Data));
-
         removeAllWatches(zk2, "/node1", WatcherType.Any, false, Code.OK);
         Assert.assertTrue("Didn't remove data watcher",
                 rmWatchCount.await(CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS));
