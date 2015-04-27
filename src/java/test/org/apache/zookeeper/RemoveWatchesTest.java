@@ -460,7 +460,7 @@ public class RemoveWatchesTest extends ClientBase {
         Assert.assertTrue("Didn't remove data watcher", w1.matches());
         Assert.assertEquals("Didn't find child watcher", 1, zk2
                 .getChildWatches().size());
-        Assert.assertEquals("Didn't find child watcher", 1, zk2
+        Assert.assertEquals("Didn't find data watcher", 1, zk2
                 .getDataWatches().size());
         removeWatches(zk2, "/node1", w2, WatcherType.Any, false, Code.OK);
         Assert.assertTrue("Didn't remove child watcher", w2.matches());
