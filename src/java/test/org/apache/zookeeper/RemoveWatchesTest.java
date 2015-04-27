@@ -461,7 +461,10 @@ public class RemoveWatchesTest extends ClientBase {
         zk2.getChildren("/node1", w2);
         removeWatches(zk2, "/node1", w1, WatcherType.Any, false, Code.OK);
         Assert.assertTrue("Didn't remove data watcher", w1.matches());
-        Assert.assertFalse("Shouldn't remove child watcher", w2.matches());
+        Assert.assertEquals("Didn't find child watcher", 1, zk2
+                .getChildWatches().size());
+        removeWatches(zk2, "/node1", w2, WatcherType.Any, false, Code.OK);
+        Assert.assertTrue("Didn't remove child watcher", w2.matches());
     }
 
     /**
@@ -487,6 +490,12 @@ public class RemoveWatchesTest extends ClientBase {
         removeWatches(zk2, "/node1", w2, WatcherType.Any, false, Code.OK);
         Assert.assertTrue("Didn't remove child watcher", w2.matches());
         Assert.assertFalse("Shouldn't remove data watcher", w1.matches());
+        Assert.assertEquals("Didn't find child watcher", 1, zk2
+                .getChildWatches().size());
+        Assert.assertEquals("Didn't find data watcher", 1, zk2
+                .getDataWatches().size());
+        removeWatches(zk2, "/node1", w1, WatcherType.Any, false, Code.OK);
+        Assert.assertTrue("Didn't remove watchers", w1.matches());
     }
 
     /**
