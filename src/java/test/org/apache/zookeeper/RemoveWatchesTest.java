@@ -489,7 +489,6 @@ public class RemoveWatchesTest extends ClientBase {
         zk2.getChildren("/node1", w1);
         removeWatches(zk2, "/node1", w2, WatcherType.Any, false, Code.OK);
         Assert.assertTrue("Didn't remove child watcher", w2.matches());
-        Assert.assertFalse("Shouldn't remove data watcher", w1.matches());
         Assert.assertEquals("Didn't find child watcher", 1, zk2
                 .getChildWatches().size());
         Assert.assertEquals("Didn't find data watcher", 1, zk2
@@ -1172,6 +1171,14 @@ public class RemoveWatchesTest extends ClientBase {
             }
         }
 
+        /**
+         * Returns true if the watcher was triggered.  Try to avoid using this
+         * method with assertFalse statements.  A false return depends on a timed
+         * out wait on a latch, which makes tests run long.
+         *
+         * @return true if the watcher was triggered, false otherwise
+         * @throws InterruptedException if interrupted while waiting on latch
+         */
         public boolean matches() throws InterruptedException {
             if (!latch.await(CONNECTION_TIMEOUT/5, TimeUnit.MILLISECONDS)) {
                 LOG.error("Failed waiting to remove the watches");
@@ -1207,6 +1214,14 @@ public class RemoveWatchesTest extends ClientBase {
             this.latch.countDown();
         }
 
+        /**
+         * Returns true if the callback was triggered.  Try to avoid using this
+         * method with assertFalse statements.  A false return depends on a timed
+         * out wait on a latch, which makes tests run long.
+         *
+         * @return true if the watcher was triggered, false otherwise
+         * @throws InterruptedException if interrupted while waiting on latch
+         */
         public boolean matches() throws InterruptedException {
             if (!latch.await(CONNECTION_TIMEOUT/5, TimeUnit.MILLISECONDS)) {
                 return false;
