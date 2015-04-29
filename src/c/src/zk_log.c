@@ -156,7 +156,7 @@ void log_message(log_callback_fn callback, ZooLogLevel curLevel,
 #ifndef THREADED
 
     ofs = snprintf(buf, FORMAT_LOG_BUF_SIZE,
-                   "%s:%d:%s@%s@%d: ", time, pid,
+                   "%s:%ld:%s@%s@%d: ", time, (long)pid,
                    dbgLevelStr[curLevel], funcName, line);
 #else
 

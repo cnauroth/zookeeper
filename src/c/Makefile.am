@@ -3,10 +3,16 @@ include $(top_srcdir)/aminclude.am
 
 AUTOMAKE_OPTIONS = serial-tests
 AM_CPPFLAGS = -I${srcdir}/include -I${srcdir}/tests -I${srcdir}/generated
+if SOLARIS
+AM_CPPFLAGS += -D_POSIX_PTHREAD_SEMANTICS
+endif
 AM_CFLAGS = -Wall -Werror -Wdeclaration-after-statement
 AM_CXXFLAGS = -Wall $(USEIPV6)
 
 LIB_LDFLAGS = -no-undefined -version-info 2
+if SOLARIS
+LIB_LDFLAGS += -lnsl -lsocket
+endif
 
 pkginclude_HEADERS = include/zookeeper.h include/zookeeper_version.h include/zookeeper_log.h include/proto.h include/recordio.h generated/zookeeper.jute.h
 EXTRA_DIST=LICENSE
