@@ -142,14 +142,18 @@ public class RemoveWatchesTest extends ClientBase {
         Assert.assertNotNull("Didn't set data watches",
                 zk2.exists("/node2", w2));
         removeWatches(zk2, "/node1", w1, WatcherType.Data, false, Code.OK);
+        Assert.assertEquals("Didn't find data watcher", 1,
+                zk2.getDataWatches().size());
+        Assert.assertEquals("Didn't find data watcher", "/node2",
+                zk2.getDataWatches().get(0));
+        removeWatches(zk2, "/node2", w2, WatcherType.Any, false, Code.OK);
+        Assert.assertTrue("Didn't remove data watcher", w2.matches());
         // closing session should remove ephemeral nodes and trigger data
         // watches if any
         if (zk1 != null) {
             zk1.close();
             zk1 = null;
         }
-        Assert.assertTrue("Didn't remove data watcher", w1.matches());
-        Assert.assertFalse("Should have removed data watcher", w2.matches());
 
         List<EventType> events = w1.getEventsAfterWatchRemoval();
         Assert.assertFalse(
@@ -179,14 +183,18 @@ public class RemoveWatchesTest extends ClientBase {
         Assert.assertNotNull("Didn't set data watches",
                 zk2.exists("/node1", w2));
         removeWatches(zk2, "/node1", w2, WatcherType.Data, false, Code.OK);
+        Assert.assertEquals("Didn't find data watcher", 1,
+                zk2.getDataWatches().size());
+        Assert.assertEquals("Didn't find data watcher", "/node1",
+                zk2.getDataWatches().get(0));
+        removeWatches(zk2, "/node1", w1, WatcherType.Any, false, Code.OK);
+        Assert.assertTrue("Didn't remove data watcher", w2.matches());
         // closing session should remove ephemeral nodes and trigger data
         // watches if any
         if (zk1 != null) {
             zk1.close();
             zk1 = null;
         }
-        Assert.assertTrue("Didn't remove data watcher", w2.matches());
-        Assert.assertFalse("Should have removed data watcher", w1.matches());
 
         List<EventType> events = w2.getEventsAfterWatchRemoval();
         Assert.assertEquals(
