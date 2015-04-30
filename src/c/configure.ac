@@ -157,7 +157,11 @@ AC_CONFIG_FILES([Makefile])
 AC_CANONICAL_HOST
 AM_CONDITIONAL([SOLARIS],[
   case "$host_os" in
-    *solaris*) true;;
-    *) false;;
+  *solaris*)
+    true
+    ;;
+  *)
+    false
+    ;;
   esac ])
 AC_OUTPUT
