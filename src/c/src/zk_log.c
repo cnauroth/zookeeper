@@ -168,7 +168,7 @@ void log_message(log_callback_fn callback, ZooLogLevel curLevel,
     #endif
 
     ofs = snprintf(buf, FORMAT_LOG_BUF_SIZE-1,
-                   "%s:%d(0x%lx):%s@%s@%d: ", time, pid, tid,
+                   "%s:%ld(0x%lx):%s@%s@%d: ", time, (long)pid, tid,
                    dbgLevelStr[curLevel], funcName, line);
 #endif
 
