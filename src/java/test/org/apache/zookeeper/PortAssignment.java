@@ -18,18 +18,44 @@
 
 package org.apache.zookeeper;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Assign ports to tests */
-public class PortAssignment {
+public final class PortAssignment {
     private static final Logger LOG = LoggerFactory.getLogger(PortAssignment.class);
 
-    private static int nextPort = 11221;
+    /**
+     * Assign a new, unique port to the test.  This method works by creating a
+     * server socket on port 0 so that the OS assigns an unused ephemeral port.
+     * The server socket gets closed immediately and the actual port that had
+     * been bound is returned.  Since the port is no longer bound after this
+     * method returns, there is a brief race condition window between the test
+     * binding to the port and possibly other concurrent tests calling this
+     * method.  It is assumed that tests will bind to the port quickly and other
+     * tests won't run so rapidly that the OS recycles a port that is assigned to
+     * a test but unbound.
+     *
+     * @return port
+     */
+    public static int unique() {
+        try {
+            ServerSocket s = new ServerSocket(0);
+            int port = s.getLocalPort();
+            s.close();
+            LOG.info("assigning port " + port);
+            return port;
+        } catch (IOException e) {
+            throw new IllegalStateException("Could not assign port.");
+        }
+    }
 
-    /** Assign a new, unique port to the test */
-    public synchronized static int unique() {
-        LOG.info("assigning port " + nextPort);
-        return nextPort++;
+    /**
+     * There is no reason to instantiate this class.
+     */
+    private PortAssignment() {
     }
 }
