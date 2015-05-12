@@ -1329,6 +1329,7 @@ xmlns:maven="antlib:org.apache.maven.artifact.ant">
                with junit fork mode set to "once")-->
           <sysproperty key="zookeeper.DigestAuthenticationProvider.superDigest"
                        value="super:D/InIHSb7yEEbrWz8b9l71RjZJU=" />
+          <sysproperty key="test.junit.threads" value="${test.junit.threads}" />
           <classpath refid="test.java.classpath"/>
           <classpath>
             <pathelement path="${test.java.classes}" />
