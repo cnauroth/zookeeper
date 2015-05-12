@@ -81,7 +81,8 @@ public final class PortAssignment {
             LOG.info("Test process {}/{} using port range {} - {}.", threadId,
                     processCount, BASE_PORT, MAX_PORT);
         } else {
-            // If running outside the context of ant, then use all valid ports.
+            // If running outside the context of Ant or Ant is using a single
+            // test process, then use all valid ports.
             BASE_PORT = GLOBAL_BASE_PORT;
             MAX_PORT = GLOBAL_MAX_PORT;
             LOG.info("Single test process using port range {} - {}.", BASE_PORT,
