@@ -91,6 +91,8 @@ BUGFIXES:
 
   ZOOKEEPER-2062 RemoveWatchesTest takes forever to run (Chris Nauroth via rakeshr)
 
+  ZOOKEEPER-2182 Several test suites are not running during pre-commit, because their names do not end with "Test". (Chris Nauroth via hdeng)
+
 IMPROVEMENTS:
   ZOOKEEPER-1660 Documentation for Dynamic Reconfiguration (Reed Wanderman-Milne via shralex)  
 
@@ -131,6 +133,8 @@ IMPROVEMENTS:
 
   ZOOKEEPER-2153 X509 Authentication Documentation
   (Ian Dimayuga via hdeng)
+
+  ZOOKEEPER-2171 avoid reverse lookups in QuorumCnxManager (rgs via michim)
 
 Release 3.5.0 - 8/4/2014
 
