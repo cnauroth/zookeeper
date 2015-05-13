@@ -51,8 +51,6 @@ public class PortAssignmentTest {
                 new Object[] { "2", "threadid=1", 11221, 21993 },
                 new Object[] { "2", "threadid=2", 21994, 32766 },
                 new Object[] { null, null, 11221, 32767 },
-                new Object[] { null, null, 11221, 32767 },
-                new Object[] { "", "", 11221, 32767 },
                 new Object[] { "", "", 11221, 32767 });
     }
 
