@@ -132,7 +132,8 @@ public final class PortAssignment {
         if (processCount != null && processCount > 1 && threadId != null) {
             // We know the total JUnit process count and this test process's ID.
             // Use these values to calculate the valid range for port assignments
-            // within this test process.
+            // within this test process.  We lose a few possible ports to the
+            // remainder, but that's acceptable.
             int portRangeSize = (GLOBAL_MAX_PORT - GLOBAL_BASE_PORT) /
                     processCount;
             int minPort = GLOBAL_BASE_PORT + ((threadId - 1) * portRangeSize);
