@@ -31,7 +31,7 @@ public final class PortAssignment {
     private static final Logger LOG = LoggerFactory.getLogger(PortAssignment.class);
 
     private static final int GLOBAL_BASE_PORT = 11221;
-    private static final int GLOBAL_MAX_PORT = 65535;
+    private static final int GLOBAL_MAX_PORT = 32767;
 
     private static PortRange portRange = null;
     private static int nextPort;

@@ -39,21 +39,21 @@ public class PortAssignmentTest {
     @Parameters
     public static Collection<Object[]> data() {
         return Arrays.<Object[]>asList(
-                new Object[] { "8", "threadid=1", 11221, 18009 },
-                new Object[] { "8", "threadid=2", 18010, 24798 },
-                new Object[] { "8", "threadid=3", 24799, 31587 },
-                new Object[] { "8", "threadid=4", 31588, 38376 },
-                new Object[] { "8", "threadid=5", 38377, 45165 },
-                new Object[] { "8", "threadid=6", 45166, 51954 },
-                new Object[] { "8", "threadid=7", 51955, 58743 },
-                new Object[] { "8", "threadid=8", 58744, 65532 },
-                new Object[] { "1", "threadid=1", 11221, 65535 },
-                new Object[] { "2", "threadid=1", 11221, 38377 },
-                new Object[] { "2", "threadid=2", 38378, 65534 },
-                new Object[] { null, null, 11221, 65535 },
-                new Object[] { null, null, 11221, 65535 },
-                new Object[] { "", "", 11221, 65535 },
-                new Object[] { "", "", 11221, 65535 });
+                new Object[] { "8", "threadid=1", 11221, 13913 },
+                new Object[] { "8", "threadid=2", 13914, 16606 },
+                new Object[] { "8", "threadid=3", 16607, 19299 },
+                new Object[] { "8", "threadid=4", 19300, 21992 },
+                new Object[] { "8", "threadid=5", 21993, 24685 },
+                new Object[] { "8", "threadid=6", 24686, 27378 },
+                new Object[] { "8", "threadid=7", 27379, 30071 },
+                new Object[] { "8", "threadid=8", 30072, 32764 },
+                new Object[] { "1", "threadid=1", 11221, 32767 },
+                new Object[] { "2", "threadid=1", 11221, 21993 },
+                new Object[] { "2", "threadid=2", 21994, 32766 },
+                new Object[] { null, null, 11221, 32767 },
+                new Object[] { null, null, 11221, 32767 },
+                new Object[] { "", "", 11221, 32767 },
+                new Object[] { "", "", 11221, 32767 });
     }
 
     public PortAssignmentTest(String strProcessCount, String cmdLine,
