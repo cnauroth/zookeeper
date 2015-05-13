@@ -30,6 +30,15 @@ import org.slf4j.LoggerFactory;
 public final class PortAssignment {
     private static final Logger LOG = LoggerFactory.getLogger(PortAssignment.class);
 
+    // The available port range that we use stays away from the ephemeral port
+    // range, which the OS will assign to client socket connections.  We can't
+    // coordinate with the OS on the assignment of those ports, so it's best to
+    // stay out of that range to avoid conflicts.  Typical ranges for ephemeral
+    // ports are:
+    // - IANA suggests 49152 - 65535
+    // - Linux typically uses 32768 - 61000
+    // - FreeBSD modern versions typically use the IANA suggested range
+    // - Windows modern versions typically use the IANA suggested range
     private static final int GLOBAL_BASE_PORT = 11221;
     private static final int GLOBAL_MAX_PORT = 32767;
 
