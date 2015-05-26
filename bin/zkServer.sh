@@ -101,8 +101,16 @@ fi
 
 echo "Using config: $ZOOCFG" >&2
 
-ZOO_DATADIR="$(grep "^[[:space:]]*dataDir" "$ZOOCFG" | sed -e 's/.*=//')"
-ZOO_DATALOGDIR="$(grep "^[[:space:]]*dataLogDir" "$ZOOCFG" | sed -e 's/.*=//')"
+case "$OSTYPE" in
+*solaris*)
+  GREP=/usr/xpg4/bin/grep
+  ;;
+*)
+  GREP=grep
+  ;;
+esac
+ZOO_DATADIR="$($GREP "^[[:space:]]*dataDir" "$ZOOCFG" | sed -e 's/.*=//')"
+ZOO_DATALOGDIR="$($GREP "^[[:space:]]*dataLogDir" "$ZOOCFG" | sed -e 's/.*=//')"
 
 # iff autocreate is turned off and the datadirs don't exist fail
 # immediately as we can't create the PID file, etc..., anyway.
@@ -150,7 +158,15 @@ start)
     -cp "$CLASSPATH" $JVMFLAGS $ZOOMAIN "$ZOOCFG" > "$_ZOO_DAEMON_OUT" 2>&1 < /dev/null &
     if [ $? -eq 0 ]
     then
-      if /bin/echo -n $! > "$ZOOPIDFILE"
+      case "$OSTYPE" in
+      *solaris*)
+        /bin/echo "${!}\\c" > "$ZOOPIDFILE"
+        ;;
+      *)
+        /bin/echo -n $! > "$ZOOPIDFILE"
+        ;;
+      esac
+      if [ $? -eq 0 ];
       then
         sleep 1
         pid=$(cat "${ZOOPIDFILE}")
