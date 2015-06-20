@@ -10,6 +10,8 @@ NEW FEATURES:
   ZOOKEEPER-2123 Provide implementation of X509 AuthenticationProvider
   (Ian Dimayuga via rakeshr)
 
+  ZOOKEEPER-2163: Introduce new ZNode type: container (Jordan Zimmerman via rgs)
+
 BUGFIXES:
   ZOOKEEPER-1784 wrong check for COMMITANDACTIVATE in observer code, Learner.java (rgs via shralex).
 
@@ -114,6 +116,24 @@ BUGFIXES:
   ZOOKEEPER-2096: C client builds with incorrect error codes in VisualStudio 2010+
   (Vitaly Stakhovsky via rgs)
 
+  ZOOKEEPER-2194: Let DataNode.getChildren() return an unmodifiable view of its children set
+  (Hitoshi Mitake via rgs)
+
+  ZOOKEEPER-2204: LearnerSnapshotThrottlerTest.testHighContentionWithTimeout fails occasionally
+  (Donny Nadolny via rgs)
+
+  ZOOKEEPER-2201: Network issues can cause cluster to hang due to near-deadlock
+  (Donny Nadolny via rgs)
+
+  ZOOKEEPER-2213: Empty path in Set crashes server and prevents restart
+  (Hongchao Deng via rgs)
+
+  ZOOKEEPER-706: Large numbers of watches can cause session re-establishment to fail
+  (Chris Thunes via rgs)
+
+  ZOOKEEPER-2212: distributed race condition related to QV version
+  (Akihiro Suda via rgs)
+
 IMPROVEMENTS:
   ZOOKEEPER-1660 Documentation for Dynamic Reconfiguration (Reed Wanderman-Milne via shralex)  
 
@@ -172,6 +192,24 @@ IMPROVEMENTS:
   (Raul Gutierrez Segales via hdeng)
 
   ZOOKEEPER-2198 Set default test.junit.threads to 1 (Chris Nauroth via michim)
+
+  ZOOKEEPER-2205: Log type of unexpected quorum packet in learner handler loop
+  (Hitoshi Mitake via rgs)
+
+  ZOOKEEPER-2206: Add missing packet types to LearnerHandler.packetToString()
+  (Hitoshi Mitake via rgs)
+
+  ZOOKEEPER-2207: Enhance error logs with LearnerHandler.packetToString()
+  (Hitoshi Mitake via rgs)
+
+  ZOOKEEPER-2208: Log type of unexpected quorum packet in observer loop
+  (Akihiro Suda via rgs)
+
+  ZOOKEEPER-2214: Findbugs warning: LearnerHandler.packetToString Dead
+  store to local variable (Hongchao Deng via rgs)
+
+  ZOOKEEPER-2185: Run server with -XX:+HeapDumpOnOutOfMemoryError and
+  -XX:OnOutOfMemoryError='kill %p' (Chris Nauroth via rgs)
 
 Release 3.5.0 - 8/4/2014
 
