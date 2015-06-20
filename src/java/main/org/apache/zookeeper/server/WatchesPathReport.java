@@ -20,6 +20,7 @@ package org.apache.zookeeper.server;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,22 +30,31 @@ import java.util.Set;
  */
 public class WatchesPathReport {
 
-    private final Map<String, Set<Long>> path2Ids;
+    private final Map<String, Set<Long>> dataPath2Ids;
+    private final Map<String, Set<Long>> childPath2Ids;
 
     /**
      * Creates a new report.
      *
-     * @param path2Ids map of paths to session IDs of sessions that have set a
-     * watch on that path
+     * @param dataPath2Ids map of paths to session IDs of sessions that have set
+     * a watch on that path
+     * @param childPath2Ids map of paths to session IDs of sessions that have
+     * set a watch on that path
      */
-    WatchesPathReport(Map<String, Set<Long>> path2Ids) {
-        this.path2Ids = Collections.unmodifiableMap(deepCopy(path2Ids));
+    WatchesPathReport(Map<String, Set<Long>> dataPath2Ids,
+            Map<String, Set<Long>> childPath2Ids) {
+        this.dataPath2Ids = Collections.unmodifiableMap(deepCopy(dataPath2Ids,
+                false));
+        this.childPath2Ids = Collections.unmodifiableMap(deepCopy(
+                childPath2Ids, true));
     }
 
-    private static Map<String, Set<Long>> deepCopy(Map<String, Set<Long>> m) {
+    private static Map<String, Set<Long>> deepCopy(Map<String, Set<Long>> m,
+            boolean appendSlash) {
         Map<String, Set<Long>> m2 = new HashMap<String, Set<Long>>();
         for (Map.Entry<String, Set<Long>> e : m.entrySet()) {
-            m2.put(e.getKey(), new HashSet<Long>(e.getValue()));
+            String path = appendSlash ? e.getKey() + "/" : e.getKey();
+            m2.put(path, new HashSet<Long>(e.getValue()));
         }
         return m2;
     }
@@ -56,8 +66,14 @@ public class WatchesPathReport {
      * @return true if path has watch set
      */
     public boolean hasSessions(String path) {
-        return path2Ids.containsKey(path);
+        if (path == null) {
+            return false;
+        }
+        return path.endsWith("/") ?
+                childPath2Ids.containsKey(path.substring(0, path.length() - 1)) :
+                dataPath2Ids.containsKey(path);
     }
+
     /**
      * Gets the session IDs of sessions that have set watches on the given path.
      * The returned set is immutable.
@@ -67,7 +83,12 @@ public class WatchesPathReport {
      * null if none
      */
     public Set<Long> getSessions(String path) {
-        Set<Long> s = path2Ids.get(path);
+        if (path == null) {
+            return null;
+        }
+        Set<Long> s = path.endsWith("/") ?
+                childPath2Ids.get(path.substring(0, path.length() - 1)) :
+                dataPath2Ids.get(path);
         return s != null ? Collections.unmodifiableSet(s) : null;
     }
 
@@ -78,6 +99,10 @@ public class WatchesPathReport {
      * @return map representation of report
      */
     public Map<String, Set<Long>> toMap() {
-        return deepCopy(path2Ids);
+        Map<String, Set<Long>> map = new LinkedHashMap<String, Set<Long>>(
+                dataPath2Ids.size() + childPath2Ids.size(), 1.0f);
+        map.putAll(deepCopy(dataPath2Ids, false));
+        map.putAll(deepCopy(childPath2Ids, false));
+        return map;
     }
 }

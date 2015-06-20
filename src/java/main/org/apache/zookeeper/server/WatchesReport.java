@@ -20,6 +20,7 @@ package org.apache.zookeeper.server;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,22 +30,39 @@ import java.util.Set;
  */
 public class WatchesReport {
 
-    private final Map<Long, Set<String>> id2paths;
+    private final Map<Long, Set<String>> id2DataPaths;
+    private final Map<Long, Set<String>> id2ChildPaths;
 
     /**
      * Creates a new report.
      *
-     * @param id2paths map of session IDs to paths that each session has set
-     * a watch on
+     * @param id2DataPaths map of session IDs to paths that each session has set
+     * a watch on for data watches
+     * @param id2ChildPaths map of session IDs to paths that each session has
+     * set a watch on for child watches
      */
-    WatchesReport(Map<Long, Set<String>> id2paths) {
-        this.id2paths = Collections.unmodifiableMap(deepCopy(id2paths));
+    WatchesReport(Map<Long, Set<String>> id2DataPaths,
+            Map<Long, Set<String>> id2ChildPaths) {
+        this.id2DataPaths = Collections.unmodifiableMap(deepCopy(id2DataPaths,
+                false));
+        this.id2ChildPaths = Collections.unmodifiableMap(deepCopy(id2ChildPaths,
+                true));
     }
 
-    private static Map<Long, Set<String>> deepCopy(Map<Long, Set<String>> m) {
+    private static Map<Long, Set<String>> deepCopy(Map<Long, Set<String>> m,
+            boolean appendSlash) {
         Map<Long, Set<String>> m2 = new HashMap<Long, Set<String>>();
         for (Map.Entry<Long, Set<String>> e : m.entrySet()) {
-            m2.put(e.getKey(), new HashSet<String>(e.getValue()));
+            final Set<String> paths;
+            if (appendSlash) {
+                paths = new HashSet<>(e.getValue().size(), 1.0f);
+                for (String path : e.getValue()) {
+                    paths.add(path + "/");
+                }
+            } else {
+                paths = new HashSet<>(e.getValue());
+            }
+            m2.put(e.getKey(), paths);
         }
         return m2;
     }
@@ -56,7 +74,8 @@ public class WatchesReport {
      * @return true if session has paths with watches set
      */
     public boolean hasPaths(long sessionId) {
-        return id2paths.containsKey(sessionId);
+        return id2DataPaths.containsKey(sessionId) ||
+                id2ChildPaths.containsKey(sessionId);
     }
 
     /**
@@ -67,7 +86,7 @@ public class WatchesReport {
      * @return paths that have watches set by the session, or null if none
      */
     public Set<String> getPaths(long sessionId) {
-        Set<String> s = id2paths.get(sessionId);
+        Set<String> s = id2DataPaths.get(sessionId);
         return s != null ? Collections.unmodifiableSet(s) : null;
     }
 
@@ -78,6 +97,10 @@ public class WatchesReport {
      * @return map representation of report
      */
     public Map<Long, Set<String>> toMap() {
-        return deepCopy(id2paths);
+        Map<Long, Set<String>> map = new LinkedHashMap<Long, Set<String>>(
+                id2DataPaths.size() + id2ChildPaths.size(), 1.0f);
+        map.putAll(deepCopy(id2DataPaths, false));
+        map.putAll(deepCopy(id2ChildPaths, false));
+        return map;
     }
 }

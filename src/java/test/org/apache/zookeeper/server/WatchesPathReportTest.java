@@ -36,7 +36,7 @@ public class WatchesPathReportTest {
         s = new HashSet<Long>();
         s.add(201L);
         m.put("path2", s);
-        r = new WatchesPathReport(m);
+        r = new WatchesPathReport(m, new HashMap<String, Set<Long>>());
     }
     @Test public void testHasSessions() {
         assertTrue(r.hasSessions("path1"));

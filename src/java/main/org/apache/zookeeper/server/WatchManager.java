@@ -145,14 +145,17 @@ class WatchManager {
 
     /**
      * String representation of watches. Warning, may be large!
+     * @param pwriter output destination
      * @param byPath iff true output watches by paths, otw output
      * watches by connection
+     * @param isChild iff true output child watches, otw output
+     * data watches
      * @return string representation of watches
      */
-    synchronized void dumpWatches(PrintWriter pwriter, boolean byPath) {
+    synchronized void dumpWatches(PrintWriter pwriter, boolean byPath, boolean isChild) {
         if (byPath) {
             for (Entry<String, HashSet<Watcher>> e : watchTable.entrySet()) {
-                pwriter.println(e.getKey());
+                pwriter.println(e.getKey() + (isChild ? "/" : ""));
                 for (Watcher w : e.getValue()) {
                     pwriter.print("\t0x");
                     pwriter.print(Long.toHexString(((ServerCnxn)w).getSessionId()));
@@ -165,7 +168,7 @@ class WatchManager {
                 pwriter.println(Long.toHexString(((ServerCnxn)e.getKey()).getSessionId()));
                 for (String path : e.getValue()) {
                     pwriter.print("\t");
-                    pwriter.println(path);
+                    pwriter.println(path + (isChild ? "/" : ""));
                 }
             }
         }
@@ -221,14 +224,14 @@ class WatchManager {
      * @return watch report
      * @see WatchesReport
      */
-    synchronized WatchesReport getWatches() {
+    synchronized Map<Long, Set<String>> getWatches() {
         Map<Long, Set<String>> id2paths = new HashMap<Long, Set<String>>();
         for (Entry<Watcher, HashSet<String>> e: watch2Paths.entrySet()) {
             Long id = ((ServerCnxn) e.getKey()).getSessionId();
             HashSet<String> paths = new HashSet<String>(e.getValue());
             id2paths.put(id, paths);
         }
-        return new WatchesReport(id2paths);
+        return id2paths;
     }
 
     /**
@@ -237,7 +240,7 @@ class WatchManager {
      * @return watch report
      * @see WatchesPathReport
      */
-    synchronized WatchesPathReport getWatchesByPath() {
+    synchronized Map<String, Set<Long>> getWatchesByPath() {
         Map<String, Set<Long>> path2ids = new HashMap<String, Set<Long>>();
         for (Entry<String, HashSet<Watcher>> e : watchTable.entrySet()) {
             Set<Long> ids = new HashSet<Long>(e.getValue().size());
@@ -246,7 +249,7 @@ class WatchManager {
                 ids.add(((ServerCnxn) watcher).getSessionId());
             }
         }
-        return new WatchesPathReport(path2ids);
+        return path2ids;
     }
 
     /**

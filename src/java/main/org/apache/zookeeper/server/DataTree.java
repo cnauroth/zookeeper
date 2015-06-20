@@ -1252,7 +1252,10 @@ public class DataTree {
      * @param pwriter the output to write to
      */
     public synchronized void dumpWatchesSummary(PrintWriter pwriter) {
-        pwriter.print(dataWatches.toString());
+        pwriter.println("Data watches");
+        pwriter.println(dataWatches.toString());
+        pwriter.println("Children watches");
+        pwriter.print(childWatches.toString());
     }
 
     /**
@@ -1261,7 +1264,8 @@ public class DataTree {
      * @param pwriter the output to write to
      */
     public synchronized void dumpWatches(PrintWriter pwriter, boolean byPath) {
-        dataWatches.dumpWatches(pwriter, byPath);
+        dataWatches.dumpWatches(pwriter, byPath, false);
+        childWatches.dumpWatches(pwriter, byPath, true);
     }
 
     /**
@@ -1271,7 +1275,8 @@ public class DataTree {
      * @see WatchesReport
      */
     public synchronized WatchesReport getWatches() {
-        return dataWatches.getWatches();
+        return new WatchesReport(dataWatches.getWatches(),
+                childWatches.getWatches());
     }
 
     /**
@@ -1281,7 +1286,8 @@ public class DataTree {
      * @see WatchesPathReport
      */
     public synchronized WatchesPathReport getWatchesByPath() {
-        return dataWatches.getWatchesByPath();
+        return new WatchesPathReport(dataWatches.getWatchesByPath(),
+                childWatches.getWatchesByPath());
     }
 
     /**
@@ -1291,6 +1297,7 @@ public class DataTree {
      * @see WatchesSummary
      */
     public synchronized WatchesSummary getWatchesSummary() {
+        // TODO: Call dataWatches and childWatches.
         return dataWatches.getWatchesSummary();
     }
 

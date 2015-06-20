@@ -36,7 +36,7 @@ public class WatchesReportTest {
         s = new HashSet<String>();
         s.add("path2a");
         m.put(2L, s);
-        r = new WatchesReport(m);
+        r = new WatchesReport(m, new HashMap<Long, Set<String>>());
     }
     @Test public void testHasPaths() {
         assertTrue(r.hasPaths(1L));

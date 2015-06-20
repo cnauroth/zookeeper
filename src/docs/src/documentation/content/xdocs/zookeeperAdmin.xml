@@ -1588,6 +1588,10 @@ server.3=zoo3:2888:3888</programlisting>
               with associated watches (paths). Note, depending on the
               number of watches this operation may be expensive (ie
               impact server performance), use it carefully.</para>
+
+              <para><emphasis role="bold">New in 3.5.0:</emphasis>
+              Child watches are now displayed as well. To differentiate them
+              from data watches, their paths have a trailing /.</para>
             </listitem>
           </varlistentry>
 
@@ -1601,6 +1605,10 @@ server.3=zoo3:2888:3888</programlisting>
               sessions. Note, depending on the number of watches this
               operation may be expensive (ie impact server performance),
               use it carefully.</para>
+
+              <para><emphasis role="bold">New in 3.5.0:</emphasis>
+              Child watches are now displayed as well. To differentiate them
+              from data watches, their paths have a trailing /.</para>
             </listitem>
           </varlistentry>
 
