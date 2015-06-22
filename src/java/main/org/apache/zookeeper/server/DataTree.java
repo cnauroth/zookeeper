@@ -1341,8 +1341,8 @@ public class DataTree {
      * @see WatchesSummary
      */
     public synchronized WatchesSummary getWatchesSummary() {
-        // TODO: Call dataWatches and childWatches.
-        return dataWatches.getWatchesSummary();
+        return new WatchesSummary(dataWatches.getWatchesSummary(),
+                childWatches.getWatchesSummary());
     }
 
     /**

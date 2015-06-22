@@ -33,7 +33,7 @@ public class WatchesSummaryTest {
     }
     @Test public void testToMap() {
         Map<String, Object> m = s.toMap();
-        assertEquals(3, m.size());
+        assertEquals(5, m.size());
         assertEquals(Integer.valueOf(1), m.get(WatchesSummary.KEY_NUM_CONNECTIONS));
         assertEquals(Integer.valueOf(2), m.get(WatchesSummary.KEY_NUM_PATHS));
         assertEquals(Integer.valueOf(3), m.get(WatchesSummary.KEY_NUM_TOTAL_WATCHES));
