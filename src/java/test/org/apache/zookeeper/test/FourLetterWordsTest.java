@@ -19,12 +19,15 @@
 package org.apache.zookeeper.test;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.regex.Pattern;
 
 import org.apache.zookeeper.TestableZooKeeper;
 import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.common.IOUtils;
 import org.apache.zookeeper.common.X509Exception.SSLContextException;
 
 import static org.apache.zookeeper.client.FourLetterWordMain.send4LetterWord;
@@ -177,5 +180,44 @@ public class FourLetterWordsTest extends ClientBase {
 
         zk1.close();
         zk2.close();
+    }
+
+    @Test
+    public void testSetTraceMask() throws Exception {
+        String gtmkResp = sendRequest("gtmk");
+        Assert.assertNotNull(gtmkResp);
+        gtmkResp = gtmkResp.trim();
+        Assert.assertFalse(gtmkResp.isEmpty());
+        long formerMask = Long.valueOf(gtmkResp);
+        try {
+            verify(buildSetTraceMaskRequest(0), "0");
+            verify("gtmk", "0");
+        } finally {
+            // Restore former value.
+            sendRequest(buildSetTraceMaskRequest(formerMask));
+        }
+    }
+
+    /**
+     * Builds a SetTraceMask request to be sent to the server, consisting of
+     * "stmk" followed by the 8-byte long representation of the trace mask.
+     *
+     * @param mask trace mask to set
+     * @return built request
+     * @throws IOException if there is an I/O error
+     */
+    private String buildSetTraceMaskRequest(long mask) throws IOException {
+        ByteArrayOutputStream baos = null;
+        DataOutputStream dos = null;
+        try {
+            baos = new ByteArrayOutputStream();
+            dos = new DataOutputStream(baos);
+            dos.writeBytes("stmk");
+            dos.writeLong(mask);
+        } finally {
+            IOUtils.closeStream(dos);
+            IOUtils.closeStream(baos);
+        }
+        return new String(baos.toByteArray());
     }
 }
