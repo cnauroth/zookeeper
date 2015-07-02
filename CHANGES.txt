@@ -137,6 +137,12 @@ BUGFIXES:
   ZOOKEEPER-2210: clock_gettime is not available in OS X
   (Michi Mutsuzaki via rgs)
 
+  ZOOKEEPER-2193: reconfig command completes even if parameter is wrong obviously
+  (Yasuhito Fukuda via rgs)
+
+  ZOOKEEPER-2221: Zookeeper JettyAdminServer server should start on configured IP
+  (Surendra Singh Lilhore via rgs)
+
 IMPROVEMENTS:
   ZOOKEEPER-1660 Documentation for Dynamic Reconfiguration (Reed Wanderman-Milne via shralex)  
 
@@ -213,6 +219,9 @@ IMPROVEMENTS:
 
   ZOOKEEPER-2185: Run server with -XX:+HeapDumpOnOutOfMemoryError and
   -XX:OnOutOfMemoryError='kill %p' (Chris Nauroth via rgs)
+
+  ZOOKEEPER-2140: NettyServerCnxn and NIOServerCnxn code should be improved
+  (Arshad Mohammad via rgs)
 
 Release 3.5.0 - 8/4/2014
 
